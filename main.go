@@ -31,7 +31,7 @@ func main() {
 	}
 	defer database.Conn.Close()
 	
-	httpHandler := services.NewHandler(database)
+	httpHandler := services.NewHandler2(database)
 	server := &http.Server{
 		Handler: httpHandler,
 	}
@@ -41,6 +41,7 @@ func main() {
 	}()
 
 	defer Stop(server)
+
 
 	log.Printf("Started server on %s", addr)
 

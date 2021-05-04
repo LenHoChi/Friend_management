@@ -18,3 +18,11 @@ func NewHandler(db db.Database) http.Handler {
 
 	return router
 }
+func NewHandler2(db db.Database) http.Handler {
+	router := chi.NewRouter()
+	dbInstance = db
+
+	router.Route("/relationship", Relationship)
+
+	return router
+}
