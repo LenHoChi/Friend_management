@@ -3,6 +3,8 @@ package repository
 import (
 	"Friend_management/models"
 	"database/sql"
+	"errors"
+
 	// "fmt"
 
 	// "fmt"
@@ -33,8 +35,11 @@ func AddUser(database db.Database, user *models.User) error {
 	// 	return fmt.Errorf("have problem while insert")
 	// }
 	// return nil
-
-	_,err := database.Conn.Exec(query, user.Email)
+	_, errFind := GetUserByEmail(database, user.Email)
+	if errFind == nil {
+		return errors.New("this email exists already")
+	}
+	_, err := database.Conn.Exec(query, user.Email)
 	if err != nil {
 		return err
 	}
