@@ -31,7 +31,7 @@ func main() {
 	}
 	defer database.Conn.Close()
 	
-	httpHandler := services.NewHandler2(database)
+	httpHandler := services.NewHandler(database)
 	server := &http.Server{
 		Handler: httpHandler,
 	}

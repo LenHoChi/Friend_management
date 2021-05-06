@@ -1,8 +1,10 @@
 package repository
 
 import (
-	"database/sql"
 	"Friend_management/models"
+	"database/sql"
+	// "fmt"
+
 	// "fmt"
 	"Friend_management/db"
 )
@@ -14,7 +16,6 @@ func GetAllUsers(database db.Database) (*models.UserList, error) {
 	if err != nil {
 		return list, err
 	}
-
 	for rows.Next() {
 		var user models.User
 		err := rows.Scan(&user.Email)
@@ -33,7 +34,10 @@ func AddUser(database db.Database, user *models.User) error {
 	// }
 	// return nil
 
-	database.Conn.QueryRow(query, user.Email)
+	_,err := database.Conn.Exec(query, user.Email)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
