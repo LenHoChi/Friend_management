@@ -58,13 +58,18 @@ func CheckRelationshipSimilar(database db.Database, userEmail string, friendEmai
 }
 func AddRelationship(database db.Database, userEmail string, friendEmail string) (*r_Response.ResponseSuccess, error) {
 	//
-	if !isEmailValid(userEmail)&&!isEmailValid(friendEmail){
+	if !isEmailValid(userEmail)||!isEmailValid(friendEmail){
 		return nil, errors.New("email is wrong")
 	}
 	
 	//check email similar
 	if userEmail == friendEmail {
 		return nil, errors.New("error cause 2 emails are same")
+	}
+	_, errFindUser1 := GetUserByEmail(database, userEmail)
+	_, errFindUser2 := GetUserByEmail(database, friendEmail)
+	if errFindUser1 != nil || errFindUser2 != nil {
+		return nil, errors.New("no users in table")
 	}
 	//check relationship similar
 	//check case have already this relationship but friend is not -->transfer--> true
@@ -115,7 +120,7 @@ func FindListFriend(database db.Database, email string) (*r_Response.ResponseLis
 }
 
 func FindCommonListFriend(database db.Database, lstEmail []string) (*r_Response.ResponseListFriend, error) {
-	if !isEmailValid(lstEmail[0])&&!isEmailValid(lstEmail[1]){
+	if !isEmailValid(lstEmail[0])||!isEmailValid(lstEmail[1]){
 		return nil, errors.New("email is wrong")
 	}
 	list := &r_Response.ResponseListFriend{}
@@ -152,7 +157,7 @@ func FindCommonListFriend(database db.Database, lstEmail []string) (*r_Response.
 }
 
 func BeSubcribe(database db.Database, requestor string, target string) (*r_Response.ResponseSuccess, error) {
-	if !isEmailValid(requestor)&&!isEmailValid(target){
+	if !isEmailValid(requestor)||!isEmailValid(target){
 		return nil, errors.New("email is wrong")
 	}
 	//check case have already this relationship but issbucriber is not -->transfer--> true
@@ -186,7 +191,7 @@ func BeSubcribe(database db.Database, requestor string, target string) (*r_Respo
 }
 
 func ToBlock(database db.Database, requestor string, target string) (*r_Response.ResponseSuccess, error) {
-	if !isEmailValid(requestor)&&!isEmailValid(target){
+	if !isEmailValid(requestor)||!isEmailValid(target){
 		return nil, errors.New("email is wrong")
 	}
 	queryInsert := `INSERT INTO relationship values ($1, $2, $3, $4, $5)`
