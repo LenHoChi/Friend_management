@@ -34,7 +34,9 @@ func GetAllRelationship(database db.Database) (*models.RelationshipList, error) 
 
 func FindRelationshipByKey(database db.Database, userEmail string, friendEmail string) (models.Relationship, error) {
 	relationship := models.Relationship{}
-
+	if !isEmailValid(userEmail)&&!isEmailValid(friendEmail){
+		return relationship, errors.New("email is wrong")
+	}
 	query := `select * from relationship where user_email=$1 and friend_email=$2`
 	errFind := database.Conn.QueryRow(query, userEmail, friendEmail).Scan(&relationship.UserEmail, &relationship.FriendEmail, &relationship.AreFriend, &relationship.IsSubcriber, &relationship.IsBlock)
 	if errFind != nil {
@@ -55,6 +57,11 @@ func CheckRelationshipSimilar(database db.Database, userEmail string, friendEmai
 	return true
 }
 func AddRelationship(database db.Database, userEmail string, friendEmail string) (*r_Response.ResponseSuccess, error) {
+	//
+	if !isEmailValid(userEmail)&&!isEmailValid(friendEmail){
+		return nil, errors.New("email is wrong")
+	}
+	
 	//check email similar
 	if userEmail == friendEmail {
 		return nil, errors.New("error cause 2 emails are same")
@@ -76,6 +83,9 @@ func AddRelationship(database db.Database, userEmail string, friendEmail string)
 }
 
 func FindListFriend(database db.Database, email string) (*r_Response.ResponseListFriend, error) {
+	if !isEmailValid(email){
+		return nil, errors.New("email is wrong")
+	}
 	//check emai exists
 	_, errFindUser := GetUserByEmail(database, email)
 	if errFindUser != nil {
@@ -105,6 +115,9 @@ func FindListFriend(database db.Database, email string) (*r_Response.ResponseLis
 }
 
 func FindCommonListFriend(database db.Database, lstEmail []string) (*r_Response.ResponseListFriend, error) {
+	if !isEmailValid(lstEmail[0])&&!isEmailValid(lstEmail[1]){
+		return nil, errors.New("email is wrong")
+	}
 	list := &r_Response.ResponseListFriend{}
 	//check same email
 	if lstEmail[0] == lstEmail[1] {
@@ -139,6 +152,9 @@ func FindCommonListFriend(database db.Database, lstEmail []string) (*r_Response.
 }
 
 func BeSubcribe(database db.Database, requestor string, target string) (*r_Response.ResponseSuccess, error) {
+	if !isEmailValid(requestor)&&!isEmailValid(target){
+		return nil, errors.New("email is wrong")
+	}
 	//check case have already this relationship but issbucriber is not -->transfer--> true
 	queryUpdate := `update relationship set issubcriber =true where user_email =$1 and friend_email =$2`
 	queryInsert := `INSERT INTO relationship values ($1, $2, $3, $4, $5)`
@@ -170,6 +186,9 @@ func BeSubcribe(database db.Database, requestor string, target string) (*r_Respo
 }
 
 func ToBlock(database db.Database, requestor string, target string) (*r_Response.ResponseSuccess, error) {
+	if !isEmailValid(requestor)&&!isEmailValid(target){
+		return nil, errors.New("email is wrong")
+	}
 	queryInsert := `INSERT INTO relationship values ($1, $2, $3, $4, $5)`
 	queryUpdate := `update relationship set issubcriber =false where user_email=$1 and friend_email=$2`
 	queryUpdateBlock := `update relationship set issubcriber =false , isblock=true where user_email=$1 and friend_email=$2`
@@ -205,6 +224,9 @@ func ToBlock(database db.Database, requestor string, target string) (*r_Response
 }
 
 func RetrieveUpdate(database db.Database, sender string, target string) (*r_Response.ResponseRetrieve, error) {
+	if !isEmailValid(sender){
+		return nil, errors.New("email is wrong")
+	}
 	_, errFindUser := GetUserByEmail(database, sender)
 	if errFindUser != nil {
 		return nil, errors.New("no user in table")
