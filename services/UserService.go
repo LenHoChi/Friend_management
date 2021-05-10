@@ -19,16 +19,17 @@ import (
 var UserEmailKey = "emailKey"
 
 func Users(router chi.Router) {
-	router.Get("/", getAllUsers)
-	router.Post("/", createUser)
-
-	router.Route("/{emailID}", func(router chi.Router) {
-		router.Use(UserContext)
-		router.Get("/", getUser)
-		router.Delete("/", deleteUser)
-	})
+	router.Get("/", GetAllUsers)
+	router.Post("/", CreateUser)
+	router.Get("/find", GetUser)
+	router.Delete("/delete", DeleteUser)
+	// router.Route("/{emailID}", func(router chi.Router) {
+		// router.Use(UserContext)
+		// router.Get("/", GetUser)
+		// router.Delete("/", DeleteUser)
+	// })
 }
-func getAllUsers(w http.ResponseWriter, r *http.Request) {
+func GetAllUsers(w http.ResponseWriter, r *http.Request) {
 	users, err := repository.GetAllUsers(dbInstance)
 	if err != nil {
 		r_Response.ResponseWithJSON(w, http.StatusInternalServerError,err.Error())
@@ -38,9 +39,10 @@ func getAllUsers(w http.ResponseWriter, r *http.Request) {
 		r_Response.ResponseWithJSON(w, http.StatusInternalServerError,err.Error())
 		return 
 	}
+	// r_Response.ResponseWithJSON(w, http.StatusOK, "ok")
 }
 
-func createUser(w http.ResponseWriter, r *http.Request){
+func CreateUser(w http.ResponseWriter, r *http.Request){
 	user := &models.User{}
 
 	if err := render.Bind(r, user); err != nil {
@@ -70,8 +72,9 @@ func UserContext(next http.Handler) http.Handler {
 	})
 }
 
-func getUser(w http.ResponseWriter, r *http.Request) {
-	email := r.Context().Value(UserEmailKey).(string)
+func GetUser(w http.ResponseWriter, r *http.Request) {
+	// email := r.Context().Value("emailKey").(string)
+	email := r.URL.Query().Get("id")
 	user, err := repository.GetUserByEmail(dbInstance, email)
 	if err != nil {
 		if err == db.ErrNoMatch {
@@ -87,8 +90,9 @@ func getUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func deleteUser(w http.ResponseWriter, r *http.Request) {
-	email := r.Context().Value(UserEmailKey).(string)
+func DeleteUser(w http.ResponseWriter, r *http.Request) {
+	// email := r.Context().Value(UserEmailKey).(string)
+	email := r.URL.Query().Get("id")
 	err := repository.DeleteUser(dbInstance, email)
 	if err != nil {
 		if err == db.ErrNoMatch {
@@ -98,5 +102,8 @@ func deleteUser(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
+}
+func Len(w http.ResponseWriter, r * http.Request){
+	r_Response.ResponseWithJSON(w, http.StatusOK,"ok ne")
 }
 
